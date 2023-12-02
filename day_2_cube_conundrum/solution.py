@@ -19,3 +19,16 @@ for item in items:
     if within_limit:
         game_id_sum += game_id
 print(f"Answer to question 1: {game_id_sum}")
+
+# Part 2
+cube_power_sum = 0
+pattern = r'(\d+)\s*([a-zA-Z]+)'
+for item in items:
+    min_cube = {'red':0, 'green':0, 'blue':0}
+    matches = re.findall(pattern, item)
+    for match in matches:
+        if int(match[0]) > min_cube[match[1]]:
+            min_cube[match[1]] = int(match[0])
+    cube_power_sum += min_cube['red'] * min_cube['green'] * min_cube['blue']
+
+print(cube_power_sum)
