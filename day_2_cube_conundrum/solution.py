@@ -31,4 +31,4 @@ for item in items:
             min_cube[match[1]] = int(match[0])
     cube_power_sum += min_cube['red'] * min_cube['green'] * min_cube['blue']
 
-print(cube_power_sum)
+print(f"Answer to question 2: {cube_power_sum}")
