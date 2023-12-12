@@ -7,47 +7,61 @@ with open('input.txt') as source_file:
     items = [x.rstrip('\n') for x in source_file]
 
 
-# Functions
-def convert(card):
-    if card == 'T':
-        return 10
-    elif card == 'J':
-        return 11
-    elif card == 'Q':
-        return 12
-    elif card == 'K':
-        return 13
-    elif card == 'A':
-        return 14
+# Parse hands
+def parse_cards(items, part_2=False):
+    hands = [re.findall(r'([A-Z0-9][^\s]+)', x) for x in items]
+    for i in range(len(hands)):
+        if part_2:
+            hands[i][0] = ['J23456789TQKA'.index(x) + 1 for x in hands[i][0]]
+        else:
+            hands[i][0] = ['23456789TJQKA'.index(x) + 1 for x in hands[i][0]]
+    return hands
+
+
+# Score hand
+def score_hand(h1, part_2=False):
+    c1 = Counter(h1).most_common()
+    if part_2:
+        if c1[0][0] == 1 and len(c1) > 1:
+            j1_sub = c1[1][0]
+        else:
+            j1_sub = c1[0][0]
+        h1 = [x if x != 1 else j1_sub for x in h1]
+        c1 = Counter(h1).most_common()
+    if c1[0][1] == 5:
+        return 7
+    elif c1[0][1] == 4:
+        return 6
+    elif c1[0][1] == 3 and c1[1][1] == 2:
+        return 5
+    elif c1[0][1] == 3:
+        return 4
+    elif c1[0][1] == 2 and c1[1][1] == 2:
+        return 3
+    elif c1[0][1] == 2:
+        return 2
     else:
-        return int(card)
+        return 1
 
 
-# Part 1
-hands = [re.findall(r'([A-Z0-9][^\s]+)', x) for x in items]
-fives, fours, house, three, tpair, opair, highc = [], [], [], [], [], [], []
+# Part 1 
+total_sum = 0
+hands = parse_cards(items, False)
 for i in range(len(hands)):
-    hands[i][0] = [convert(x) for x in hands[i][0]]
-    len_set = len(set(hands[i][0]))
-    if len_set == 1:
-        fives.append(hands[i])
-    elif len_set == 2 and Counter(hands[i][0]).most_common(1)[0][1] == 4:
-        fours.append(hands[i])
-    elif len_set == 2 and Counter(hands[i][0]).most_common(1)[0][1] == 3:
-        house.append(hands[i])
-    elif len_set == 3 and Counter(hands[i][0]).most_common(1)[0][1] == 3:
-        three.append(hands[i])
-    elif len_set == 3 and Counter(hands[i][0]).most_common(1)[0][1] == 2:
-        tpair.append(hands[i])
-    elif len_set == 4:
-        opair.append(hands[i])
-    elif len_set == 5:
-        highc.append(hands[i])
+    hands[i].append(score_hand(hands[i][0], False))
+hands = sorted(hands, key=lambda x: (x[2], x[0][0], x[0][1], x[0][2], x[0][3], x[0][4]))
+hands = [[rank + 1] + sublist for rank, sublist in enumerate(hands)]
+for hand in hands:
+    total_sum += (hand[0] * int(hand[2]))
+print(f"Answer to question 1: {total_sum}")
 
-print(fives)
-print(fours)
-print(house)
-print(three)
-print(tpair)
-print(opair)
-print(highc)
+# Part 2
+total_sum = 0
+hands = parse_cards(items, True)
+for i in range(len(hands)):
+    hands[i].append(score_hand(hands[i][0], True))
+hands = sorted(hands, key=lambda x: (x[2], x[0][0], x[0][1], x[0][2], x[0][3], x[0][4]))
+hands = [[rank + 1] + sublist for rank, sublist in enumerate(hands)]
+for hand in hands:
+    total_sum += (hand[0] * int(hand[2]))
+print(f"Answer to question 2: {total_sum}")
